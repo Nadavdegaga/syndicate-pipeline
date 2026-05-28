@@ -20,10 +20,6 @@ export type TodayData = {
   publisherAsks: { rows: (WishlistRow & { age_days: number })[]; total: number };
 };
 
-function orStatus(fields: string[], pattern: string): string {
-  return fields.map((f) => `${f}.ilike.%${pattern}%`).join(",");
-}
-
 function manyOrStatus(fields: string[], patterns: string[]): string {
   const parts: string[] = [];
   for (const sub of patterns) for (const f of fields) parts.push(`${f}.ilike.%${sub}%`);

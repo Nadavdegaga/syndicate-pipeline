@@ -69,14 +69,6 @@ const CATEGORY_COLOR: Record<string, string> = {
   unknown: "#E2E8F0",
 };
 
-// PostgREST OR-string helper: any of the brand status columns ilike pattern
-function orStatusContains(
-  fields: ReturnType<typeof activeStatusFields>,
-  pattern: string,
-): string {
-  return fields.map((f) => `${f}.ilike.%${pattern}%`).join(",");
-}
-
 export async function getInsightsData(brand: Brand): Promise<InsightsData> {
   const supabase = createClient();
   const fields = activeStatusFields(brand);
