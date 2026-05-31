@@ -3,26 +3,35 @@
 import { driver, type Driver } from "driver.js";
 import "driver.js/dist/driver.css";
 
-export const TOUR_STORAGE_KEY = "syndicate.tour.welcome.completed";
+export const TOUR_KEYS = {
+  welcome: "syndicate.tour.welcome.completed",
+  addContact: "syndicate.tour.add_contact.completed",
+  matchmaker: "syndicate.tour.matchmaker.completed",
+} as const;
+
+export type TourKey = keyof typeof TOUR_KEYS;
+
+// Backwards-compat for the original Welcome tour helper name.
+export const TOUR_STORAGE_KEY = TOUR_KEYS.welcome;
 
 let activeDriver: Driver | null = null;
 
-export function isTourCompleted(): boolean {
+export function isTourCompleted(tour: TourKey = "welcome"): boolean {
   if (typeof window === "undefined") return true;
-  return window.localStorage.getItem(TOUR_STORAGE_KEY) === "true";
+  return window.localStorage.getItem(TOUR_KEYS[tour]) === "true";
 }
 
-export function markTourCompleted() {
+export function markTourCompleted(tour: TourKey = "welcome") {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
+  window.localStorage.setItem(TOUR_KEYS[tour], "true");
 }
 
-export function resetTour() {
+export function resetTour(tour: TourKey = "welcome") {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(TOUR_STORAGE_KEY);
+  window.localStorage.removeItem(TOUR_KEYS[tour]);
 }
 
-export function startWelcomeTour() {
+function teardown() {
   if (activeDriver) {
     try {
       activeDriver.destroy();
@@ -31,17 +40,26 @@ export function startWelcomeTour() {
     }
     activeDriver = null;
   }
+}
 
-  const d = driver({
+function commonOptions(tour: TourKey) {
+  return {
     showProgress: true,
     overlayColor: "rgba(15, 23, 42, 0.55)",
     nextBtnText: "Next →",
     prevBtnText: "← Back",
     doneBtnText: "Done",
     onDestroyed: () => {
-      markTourCompleted();
+      markTourCompleted(tour);
       activeDriver = null;
     },
+  };
+}
+
+export function startWelcomeTour() {
+  teardown();
+  const d = driver({
+    ...commonOptions("welcome"),
     steps: [
       {
         popover: {
@@ -113,7 +131,105 @@ export function startWelcomeTour() {
       },
     ],
   });
+  activeDriver = d;
+  d.drive();
+  return d;
+}
 
+export function startAddContactTour() {
+  teardown();
+  const d = driver({
+    ...commonOptions("addContact"),
+    steps: [
+      {
+        element: '[data-tour="add-contact-name"]',
+        popover: {
+          title: "Name & role",
+          description:
+            "Start with the person's name and role — these are what you'll search and scan in the table view.",
+          side: "right",
+        },
+      },
+      {
+        element: '[data-tour="add-contact-network"]',
+        popover: {
+          title: "Company & channel",
+          description:
+            "Company name auto-suggests from your existing 91 networks. Channel tells you how you reach them (LinkedIn, Telegram, Email…).",
+          side: "right",
+        },
+      },
+      {
+        element: '[data-tour="add-contact-brands"]',
+        popover: {
+          title: "The three brand statuses",
+          description:
+            "Each contact has three parallel statuses — one for Nomi, one for StarTech, one for Luminarix. They're independent. You can be 'LD' with someone for Nomi and 'Pending' for StarTech.",
+          side: "left",
+        },
+      },
+      {
+        element: '[data-tour="add-contact-submit"]',
+        popover: {
+          title: "Save",
+          description:
+            "Click Save and you're back on the contacts list with the new row at the top.",
+          side: "top",
+        },
+      },
+    ],
+  });
+  activeDriver = d;
+  d.drive();
+  return d;
+}
+
+export function startMatchMakerTour() {
+  teardown();
+  const d = driver({
+    ...commonOptions("matchmaker"),
+    steps: [
+      {
+        popover: {
+          title: "MatchMaker — pair publishers with offers",
+          description:
+            "Two modes, one goal: find the right offer for a publisher who's asked you to source something, or find publishers for an offer you've just acquired.",
+        },
+      },
+      {
+        element: '[data-tour="mm-tab-publisher"]',
+        popover: {
+          title: "By publisher",
+          description:
+            "Pick a publisher, see their open wishlists, and the top 5 active offers that match each request — ranked by score.",
+          side: "bottom",
+        },
+      },
+      {
+        element: '[data-tour="mm-tab-offer"]',
+        popover: {
+          title: "By offer",
+          description:
+            "Pick an offer, see all open publisher wishlists that overlap with it on vertical or name tokens.",
+          side: "bottom",
+        },
+      },
+      {
+        popover: {
+          title: "Match score",
+          description:
+            "Exact vertical match = +50. Partial vertical = +25. Each shared name token = +10. Threshold ≥ 20 surfaces a match. ≥ 50 is strong, ≥ 30 is good, < 30 is a stretch.",
+        },
+      },
+      {
+        popover: {
+          title: "Mark matched",
+          description:
+            "When you've actually paired a publisher with an offer, click Mark matched — the wishlist flips to 'matched' and the activity log records it.",
+        },
+      },
+    ],
+  });
   activeDriver = d;
   d.drive();
   return d;

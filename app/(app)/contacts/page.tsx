@@ -1,4 +1,4 @@
-import { Users, Kanban } from "lucide-react";
+import { Users, Kanban, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ContactsTable } from "@/components/contacts/ContactsTable";
@@ -70,11 +70,23 @@ export default async function ContactsPage({
             : `${(count ?? 0).toLocaleString()} contacts · click a row to open the detail drawer`
         }
         actions={
-          <Button asChild variant="outline" size="sm" className="gap-2">
-            <Link href="/contacts/kanban">
-              <Kanban className="h-4 w-4" /> Kanban
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href="/contacts/kanban">
+                <Kanban className="h-4 w-4" /> Kanban
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="gap-2"
+              data-tour="add-contact-button"
+            >
+              <Link href="/contacts/new">
+                <UserPlus className="h-4 w-4" /> Add Contact
+              </Link>
+            </Button>
+          </div>
         }
       />
 

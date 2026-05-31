@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { BrandSwitcher } from "./BrandSwitcher";
 import { HelpButton } from "./HelpButton";
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/actions/auth";
 
@@ -54,8 +55,9 @@ export function Topbar({ userEmail }: { userEmail: string | null }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-5">
+      <div className="flex items-center gap-2 sm:gap-3">
         <BrandSwitcher />
+        <FeedbackButton />
         <HelpButton />
         <div className="hidden text-xs text-slate-500 md:block">{userEmail}</div>
         <form action={signOut}>

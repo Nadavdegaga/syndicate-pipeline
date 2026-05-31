@@ -44,10 +44,18 @@ export function MatchMakerClient({
   return (
     <Tabs defaultValue={initialOfferId ? "offer" : "publisher"}>
       <TabsList className="bg-white">
-        <TabsTrigger value="publisher" className="gap-2">
+        <TabsTrigger
+          value="publisher"
+          className="gap-2"
+          data-tour="mm-tab-publisher"
+        >
           <Users className="h-4 w-4" /> By publisher
         </TabsTrigger>
-        <TabsTrigger value="offer" className="gap-2">
+        <TabsTrigger
+          value="offer"
+          className="gap-2"
+          data-tour="mm-tab-offer"
+        >
           <Briefcase className="h-4 w-4" /> By offer
         </TabsTrigger>
       </TabsList>
