@@ -1,4 +1,5 @@
-import { Radio } from "lucide-react";
+import Link from "next/link";
+import { Radio, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { NetworksTable } from "@/components/networks/NetworksTable";
 import { SearchBar } from "@/components/shared/SearchBar";
@@ -6,6 +7,7 @@ import { Pagination } from "@/components/shared/Pagination";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterBuilder } from "@/components/shared/FilterBuilder";
 import { SavedViewsBar } from "@/components/shared/SavedViewsBar";
+import { Button } from "@/components/ui/button";
 import {
   applyFilterSpec,
   decodeFilter,
@@ -59,6 +61,18 @@ export default async function NetworksPage({
           error
             ? undefined
             : `${(count ?? 0).toLocaleString()} networks · click a row for the full detail page`
+        }
+        actions={
+          <Button
+            asChild
+            size="sm"
+            className="gap-2"
+            data-tour="add-network-button"
+          >
+            <Link href="/networks/new">
+              <Plus className="h-4 w-4" /> Add Network
+            </Link>
+          </Button>
         }
       />
 

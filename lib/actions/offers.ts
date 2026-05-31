@@ -62,6 +62,58 @@ export async function updateOfferField(
   return { ok: true };
 }
 
+export async function createOffer(payload: {
+  name: string;
+  network_id?: string | null;
+  network_name?: string;
+  vertical?: string;
+  payout?: string;
+  traffic_sources?: string;
+  preview_link?: string;
+  status?: string;
+  kpi_notes?: string;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (!payload.name?.trim()) return { ok: false, error: "Name is required." };
+
+  const supabase = createClient();
+  // Resolve network_name from network_id if provided
+  let networkName = payload.network_name?.trim() || null;
+  if (!networkName && payload.network_id) {
+    const { data: n } = await supabase
+      .from("networks")
+      .select("name")
+      .eq("id", payload.network_id)
+      .maybeSingle();
+    networkName = n?.name ?? null;
+  }
+  const insert = {
+    name: payload.name.trim(),
+    network_id: payload.network_id || null,
+    network_name: networkName,
+    vertical: payload.vertical || null,
+    payout: payload.payout || null,
+    traffic_sources: payload.traffic_sources || null,
+    preview_link: payload.preview_link || null,
+    status: payload.status || "active",
+    kpi_notes: payload.kpi_notes || null,
+  };
+  const { data, error } = await supabase
+    .from("offers")
+    .insert(insert)
+    .select("id")
+    .single();
+  if (error) return { ok: false, error: error.message };
+
+  await logActivity({
+    entity_type: "offer",
+    entity_id: data.id,
+    action: "created",
+    to_value: insert.name,
+  });
+  revalidatePath("/offers");
+  return { ok: true, id: data.id };
+}
+
 export async function markOfferPitched(id: string): Promise<ActionResult> {
   const supabase = createClient();
   const now = new Date().toISOString();

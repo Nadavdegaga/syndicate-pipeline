@@ -14,6 +14,9 @@ import {
   Search,
   Upload,
   Settings,
+  LineChart,
+  Sparkles,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -42,9 +45,17 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: "Reporting",
+    items: [
+      { href: "/reporting/affise", label: "Affise", icon: LineChart },
+      { href: "/reporting/bi", label: "Advanced BI", icon: Sparkles },
+    ],
+  },
+  {
     label: "Tools",
     items: [
       { href: "/matchmaker", label: "MatchMaker", icon: Search },
+      { href: "/external-offers", label: "External Offers", icon: Globe },
       { href: "/import", label: "Import", icon: Upload },
       { href: "/settings", label: "Settings", icon: Settings },
     ],
@@ -57,6 +68,17 @@ function initialsFromEmail(email: string | null): string {
   const parts = local.split(/[._-]/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return local.slice(0, 2).toUpperCase();
+}
+
+// Build a slug-safe data-tour key from the nav href.
+function tourKeyFor(href: string): string {
+  return "nav-" + href.replace(/^\//, "").replace(/\//g, "-");
+}
+
+// Active when pathname matches the nav href OR is a sub-route of it.
+function isActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  return pathname.startsWith(href + "/");
 }
 
 export function Sidebar({ userEmail }: { userEmail: string | null }) {
@@ -75,7 +97,7 @@ export function Sidebar({ userEmail }: { userEmail: string | null }) {
               Syndicate Pipeline
             </div>
             <div className="text-[10px] uppercase tracking-wider text-slate-400">
-              v0.1 · EPIC 2
+              v0.2 · EPIC 4
             </div>
           </div>
         </div>
@@ -89,14 +111,12 @@ export function Sidebar({ userEmail }: { userEmail: string | null }) {
             </div>
             {group.items.map((item) => {
               const Icon = item.icon;
-              const active =
-                pathname === item.href || pathname.startsWith(item.href + "/");
-              const tourKey = item.href.replace("/", "");
+              const active = isActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-tour={`nav-${tourKey}`}
+                  data-tour={tourKeyFor(item.href)}
                   className={cn(
                     "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
                     active

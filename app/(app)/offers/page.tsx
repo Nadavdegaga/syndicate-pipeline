@@ -1,6 +1,8 @@
-import { Briefcase } from "lucide-react";
+import Link from "next/link";
+import { Briefcase, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { OfferCard } from "@/components/offers/OfferCard";
+import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/shared/SearchBar";
 import { Pagination } from "@/components/shared/Pagination";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -59,6 +61,13 @@ export default async function OffersPage({
         icon={Briefcase}
         description="Cataloged campaigns across networks — click a card for full details."
         meta={error ? undefined : `${(count ?? 0).toLocaleString()} offers`}
+        actions={
+          <Button asChild size="sm" className="gap-2" data-tour="add-offer-button">
+            <Link href="/offers/new">
+              <Plus className="h-4 w-4" /> Add Offer
+            </Link>
+          </Button>
+        }
       />
 
       <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

@@ -8,6 +8,7 @@ import {
   Search,
   CheckCircle2,
   Loader2,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -160,6 +161,16 @@ export function OfferDetailClient({ offer }: { offer: OfferRow }) {
               )}
               Mark as pitched
             </Button>
+            {!offer.network_id && offer.network_name && (
+              <Button asChild variant="outline">
+                <Link
+                  href={`/networks/new?name=${encodeURIComponent(offer.network_name)}&from_offer=${offer.id}`}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add network &quot;{offer.network_name}&quot;
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

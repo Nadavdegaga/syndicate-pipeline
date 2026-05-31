@@ -1,6 +1,8 @@
-import { Handshake } from "lucide-react";
+import Link from "next/link";
+import { Handshake, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { WishlistsTable } from "@/components/wishlists/WishlistsTable";
+import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/shared/SearchBar";
 import { Pagination } from "@/components/shared/Pagination";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -61,6 +63,13 @@ export default async function WishlistsPage({
           error
             ? undefined
             : `${(count ?? 0).toLocaleString()} wishlist items`
+        }
+        actions={
+          <Button asChild size="sm" className="gap-2" data-tour="add-wishlist-button">
+            <Link href="/wishlists/new">
+              <Plus className="h-4 w-4" /> Add Wishlist
+            </Link>
+          </Button>
         }
       />
 

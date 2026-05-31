@@ -7,28 +7,45 @@ import {
   startWelcomeTour,
   startMatchMakerTour,
   startAddContactTour,
+  startExternalOffersTour,
+  startAffiseTour,
+  startSmartInsightsTour,
 } from "@/lib/tour";
+
+type RouteTour = { match: (p: string) => boolean; label: string; start: () => void };
+
+const ROUTE_TOURS: RouteTour[] = [
+  {
+    match: (p) => p.startsWith("/matchmaker"),
+    label: "Replay MatchMaker tour",
+    start: startMatchMakerTour,
+  },
+  {
+    match: (p) => p.startsWith("/contacts/new"),
+    label: "Replay Add Contact tour",
+    start: startAddContactTour,
+  },
+  {
+    match: (p) => p.startsWith("/external-offers"),
+    label: "Replay External Offers tour",
+    start: startExternalOffersTour,
+  },
+  {
+    match: (p) => p.startsWith("/reporting/affise"),
+    label: "Replay Affise Reporting tour",
+    start: startAffiseTour,
+  },
+  {
+    match: (p) => p.startsWith("/insights"),
+    label: "Replay Smart Insights tour",
+    start: startSmartInsightsTour,
+  },
+];
 
 export function HelpButton() {
   const pathname = usePathname();
-
-  function launch() {
-    if (pathname.startsWith("/matchmaker")) {
-      startMatchMakerTour();
-      return;
-    }
-    if (pathname.startsWith("/contacts/new")) {
-      startAddContactTour();
-      return;
-    }
-    startWelcomeTour();
-  }
-
-  const label = pathname.startsWith("/matchmaker")
-    ? "Replay MatchMaker tour"
-    : pathname.startsWith("/contacts/new")
-      ? "Replay Add Contact tour"
-      : "Replay welcome tour";
+  const match = ROUTE_TOURS.find((t) => t.match(pathname));
+  const label = match?.label ?? "Replay welcome tour";
 
   return (
     <Button
@@ -38,7 +55,7 @@ export function HelpButton() {
       className="text-slate-500 hover:text-slate-900"
       aria-label={label}
       title={label}
-      onClick={launch}
+      onClick={() => (match ? match.start() : startWelcomeTour())}
     >
       <HelpCircle className="h-4 w-4" />
     </Button>

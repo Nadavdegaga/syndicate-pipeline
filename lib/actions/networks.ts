@@ -63,6 +63,44 @@ export async function updateNetworkField(
   return { ok: true };
 }
 
+export async function createNetwork(payload: {
+  name: string;
+  tier?: "A" | "B" | "C" | null;
+  login_url?: string;
+  registration_url?: string;
+  linkedin_url?: string;
+  registered?: boolean | null;
+  notes?: string;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (!payload.name?.trim()) return { ok: false, error: "Name is required." };
+
+  const supabase = createClient();
+  const insert = {
+    name: payload.name.trim(),
+    tier: payload.tier ?? null,
+    login_url: payload.login_url || null,
+    registration_url: payload.registration_url || null,
+    linkedin_url: payload.linkedin_url || null,
+    registered: payload.registered ?? null,
+    notes: payload.notes || null,
+  };
+  const { data, error } = await supabase
+    .from("networks")
+    .insert(insert)
+    .select("id")
+    .single();
+  if (error) return { ok: false, error: error.message };
+
+  await logActivity({
+    entity_type: "network",
+    entity_id: data.id,
+    action: "created",
+    to_value: insert.name,
+  });
+  revalidatePath("/networks");
+  return { ok: true, id: data.id };
+}
+
 export async function getNetworkActivity(id: string, limit = 20) {
   const supabase = createClient();
   const { data } = await supabase

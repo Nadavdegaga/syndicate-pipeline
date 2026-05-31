@@ -1,6 +1,8 @@
-import { TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { TrendingUp, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DemandTable } from "@/components/demand/DemandTable";
+import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/shared/SearchBar";
 import { Pagination } from "@/components/shared/Pagination";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -61,6 +63,13 @@ export default async function DemandPage({
           error
             ? undefined
             : `${(count ?? 0).toLocaleString()} demand items`
+        }
+        actions={
+          <Button asChild size="sm" className="gap-2" data-tour="add-demand-button">
+            <Link href="/demand/new">
+              <Plus className="h-4 w-4" /> Add Demand
+            </Link>
+          </Button>
         }
       />
 

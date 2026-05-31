@@ -14,6 +14,9 @@ import {
   Upload,
   Settings,
   LogOut,
+  LineChart,
+  Sparkles,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 import { BrandSwitcher } from "./BrandSwitcher";
@@ -32,14 +35,21 @@ const META: Record<string, { title: string; icon: LucideIcon }> = {
   "/wishlists": { title: "Wishlists", icon: Handshake },
   "/demand": { title: "Network Demand", icon: TrendingUp },
   "/matchmaker": { title: "MatchMaker", icon: Search },
+  "/external-offers": { title: "External Offers", icon: Globe },
   "/import": { title: "Import", icon: Upload },
   "/settings": { title: "Settings", icon: Settings },
+  "/reporting/affise": { title: "Affise Reporting", icon: LineChart },
+  "/reporting/bi": { title: "Advanced BI", icon: Sparkles },
+  "/reporting": { title: "Reporting", icon: LineChart },
 };
 
 export function Topbar({ userEmail }: { userEmail: string | null }) {
   const pathname = usePathname();
-  const top = "/" + pathname.split("/")[1];
-  const meta = META[top] ?? { title: "Syndicate Pipeline", icon: BarChart3 };
+  // Prefer a more specific 2-segment key (e.g. "/reporting/affise"), then fall back to top-level.
+  const segments = pathname.split("/").filter(Boolean);
+  const twoSeg = segments.length >= 2 ? "/" + segments.slice(0, 2).join("/") : "";
+  const topSeg = "/" + (segments[0] ?? "");
+  const meta = META[twoSeg] ?? META[topSeg] ?? { title: "Syndicate Pipeline", icon: BarChart3 };
   const Icon = meta.icon;
 
   return (

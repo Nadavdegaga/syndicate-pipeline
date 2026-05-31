@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Download,
   ChevronRight,
+  Key,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -54,6 +55,13 @@ export default async function SettingsPage() {
       title: "Activity History",
       description: "Global timeline of every meaningful change.",
       icon: Activity,
+      adminOnly: true,
+    },
+    {
+      href: "/settings/api-keys",
+      title: "API ingest keys",
+      description: "Server-to-server keys for Affise and future integrations.",
+      icon: Key,
       adminOnly: true,
     },
   ];
