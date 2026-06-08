@@ -5,18 +5,28 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { KanbanBoard } from "@/components/contacts/KanbanBoard";
 import type { ContactWithAgeRow } from "@/lib/supabase/types";
+import { getServerBrand } from "@/lib/utils/server-brand";
+import { statusFieldFor } from "@/lib/utils/brand";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_LIMIT = 500;
 
 export default async function ContactsKanbanPage() {
+  const brand = getServerBrand();
   const supabase = createClient();
-  const { data } = await supabase
+  let kanbanQuery = supabase
     .from("v_contacts_with_age")
     .select("*")
     .order("last_touch_at", { ascending: false, nullsFirst: false })
     .limit(PAGE_LIMIT);
+
+  if (brand !== "all") {
+    const field = statusFieldFor(brand)!;
+    kanbanQuery = kanbanQuery.not(field, "is", null);
+  }
+
+  const { data } = await kanbanQuery;
 
   const rows = (data ?? []) as ContactWithAgeRow[];
 

@@ -3,6 +3,8 @@
 import everflow from "./everflow";
 import cake from "./cake";
 import affise from "./affise";
+import nomi from "./nomi";
+import startech from "./startech";
 import tune from "./tune";
 import hasoffers from "./hasoffers";
 import customClient from "./custom";
@@ -12,6 +14,8 @@ export type PlatformKind =
   | "everflow"
   | "cake"
   | "affise"
+  | "nomi"
+  | "startech"
   | "tune"
   | "hasoffers"
   | "custom";
@@ -20,6 +24,8 @@ const REGISTRY: Record<PlatformKind, PlatformClient> = {
   everflow,
   cake,
   affise,
+  nomi,
+  startech,
   tune,
   hasoffers,
   custom: customClient,
@@ -39,6 +45,8 @@ export function platformLabel(kind: PlatformKind): string {
       everflow: "Everflow",
       cake: "Cake",
       affise: "Affise",
+      nomi: "Nomi",
+      startech: "StarTech",
       tune: "Tune",
       hasoffers: "HasOffers",
       custom: "Custom",

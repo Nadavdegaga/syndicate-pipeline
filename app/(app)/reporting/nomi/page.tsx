@@ -1,17 +1,16 @@
 import { LineChart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { PageTourLauncher } from "@/components/shell/PageTourLauncher";
-import { AffiseDashboard, type DailyStat } from "@/components/reporting/AffiseDashboard";
+import { NomiDashboard, type DailyStat } from "@/components/reporting/NomiDashboard";
 
 export const dynamic = "force-dynamic";
 
-export default async function AffiseReportingPage() {
+export default async function NomiReportingPage() {
   const supabase = createClient();
   const cutoff = new Date();
   cutoff.setUTCDate(cutoff.getUTCDate() - 89);
   const { data } = await supabase
-    .from("affise_daily_stats")
+    .from("nomi_daily_stats")
     .select("report_date, offer_id, source, clicks, conversions, revenue, cost, profit")
     .gte("report_date", cutoff.toISOString().slice(0, 10))
     .order("report_date", { ascending: false })
@@ -24,18 +23,17 @@ export default async function AffiseReportingPage() {
     profit: Number(r.profit),
   })) as DailyStat[];
 
-  const canSync = !!(process.env.AFFISE_API_KEY && process.env.AFFISE_BASE_URL);
+  const canSync = !!(process.env.NOMI_AFFISE_API_KEY && process.env.NOMI_AFFISE_BASE_URL);
 
   return (
     <div className="space-y-6">
-      <PageTourLauncher tour="affise" />
       <PageHeader
-        title="Affise Reporting"
+        title="Nomi Reporting"
         icon={LineChart}
-        description="Daily clicks, conversions, revenue and profit ingested from Affise."
+        description="Daily clicks, conversions, revenue and profit ingested from Nomi."
         meta={`${rows.length.toLocaleString()} daily records in the last 90 days`}
       />
-      <AffiseDashboard rows={rows} canSync={canSync} />
+      <NomiDashboard rows={rows} canSync={canSync} />
     </div>
   );
 }

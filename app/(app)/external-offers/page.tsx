@@ -8,14 +8,16 @@ import {
   type ExternalOfferRow,
 } from "@/components/external-offers/ExternalOffersTable";
 import { platformLabel, type PlatformKind } from "@/lib/platforms/registry";
+import { getServerBrand } from "@/lib/utils/server-brand";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExternalOffersPage() {
+  const brand = getServerBrand();
   const supabase = createClient();
   const [
-    { data: connections },
-    { data: offers },
+    { data: connectionsRaw },
+    { data: offersRaw },
   ] = await Promise.all([
     supabase
       .from("platform_connections")
@@ -34,8 +36,17 @@ export default async function ExternalOffersPage() {
       .limit(2000),
   ]);
 
+  const connections = brand === "all"
+    ? (connectionsRaw ?? [])
+    : (connectionsRaw ?? []).filter((c) => c.platform === brand);
+
+  const offers = brand === "all"
+    ? (offersRaw ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    : (offersRaw ?? []).filter((o) => (o as any).platform_connections?.platform === brand);
+
   // Decorate offers with connection info
-  const rows: ExternalOfferRow[] = (offers ?? []).map((o) => {
+  const rows: ExternalOfferRow[] = offers.map((o) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const conn = (o as any).platform_connections;
     const platform = (conn?.platform ?? "custom") as PlatformKind;
@@ -72,13 +83,13 @@ export default async function ExternalOffersPage() {
         title="External Offers"
         icon={Globe}
         description="Offers we've pulled from your connected platforms. Filter, browse, and copy any to your own offer catalog with one click."
-        meta={`${rows.length} offers · ${(connections ?? []).length} connection${
-          (connections ?? []).length === 1 ? "" : "s"
+        meta={`${rows.length} offers · ${connections.length} connection${
+          connections.length === 1 ? "" : "s"
         }`}
       />
 
       <ConnectionsStrip
-        connections={(connections ?? []) as ConnectionCard[]}
+        connections={connections as ConnectionCard[]}
       />
 
       <ExternalOffersTable

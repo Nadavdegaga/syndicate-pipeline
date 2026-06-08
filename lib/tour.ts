@@ -77,7 +77,7 @@ export function startWelcomeTour() {
           title: "Brand Switcher",
           description:
             "Choose which brand you're working under — Nomi, StarTech, or Luminarix. The data filters automatically; statuses and KPIs scope to that brand.",
-          side: "bottom",
+          side: "right",
         },
       },
       {

@@ -19,7 +19,7 @@ do $$ begin
 end $$;
 
 create table if not exists platform_connections (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   platform platform_kind not null,
   display_name text not null,
   base_url text not null,
@@ -37,7 +37,7 @@ create table if not exists platform_connections (
 );
 
 create table if not exists external_offers (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   connection_id uuid not null references platform_connections(id) on delete cascade,
   platform_offer_id text not null,
   name text not null,
@@ -63,7 +63,7 @@ create index if not exists idx_external_offers_added on external_offers(added_to
 create index if not exists idx_external_offers_name_trgm on external_offers using gin (name gin_trgm_ops);
 
 create table if not exists sync_runs (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   connection_id uuid not null references platform_connections(id) on delete cascade,
   triggered_by text not null check (triggered_by in ('cron', 'manual')),
   status text not null check (status in ('running', 'success', 'error')),
@@ -80,7 +80,7 @@ create index if not exists idx_sync_runs_conn on sync_runs(connection_id, starte
 -- ========= Card 4.6: Affise reporting ingest =========
 
 create table if not exists affise_daily_stats (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   report_date date not null,
   offer_id text not null,
   source text not null default 'affise',
@@ -98,7 +98,7 @@ create index if not exists idx_affise_daily_date on affise_daily_stats(report_da
 create index if not exists idx_affise_daily_offer on affise_daily_stats(offer_id, report_date desc);
 
 create table if not exists api_ingest_keys (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   label text not null,
   key_hash text not null unique,
   scopes text[] not null default '{}',
@@ -120,7 +120,7 @@ do $$ begin
 end $$;
 
 create table if not exists smart_insights (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   kind insight_kind not null,
   title text not null,
   body text,
@@ -153,7 +153,7 @@ do $$ begin
 end $$;
 
 create table if not exists email_messages (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   kind email_kind not null,
   to_address text not null,
   from_address text not null,

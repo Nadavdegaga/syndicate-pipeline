@@ -17,6 +17,8 @@ import {
 import { listSavedViews } from "@/lib/actions/saved-views";
 import { DEFAULT_VIEWS } from "@/lib/saved-views/defaults";
 import type { ContactWithAgeRow } from "@/lib/supabase/types";
+import { getServerBrand } from "@/lib/utils/server-brand";
+import { statusFieldFor } from "@/lib/utils/brand";
 
 const PAGE_SIZE = 50;
 
@@ -33,12 +35,18 @@ export default async function ContactsPage({
   const to = from + PAGE_SIZE - 1;
   const filter = decodeFilter(searchParams.f);
 
+  const brand = getServerBrand();
   const supabase = createClient();
   let query = supabase
     .from("v_contacts_with_age")
     .select("*", { count: "exact" })
     .order("last_touch_at", { ascending: false, nullsFirst: false })
     .range(from, to);
+
+  if (brand !== "all") {
+    const field = statusFieldFor(brand)!;
+    query = query.not(field, "is", null);
+  }
 
   if (q) {
     const esc = q.replace(/[%,]/g, "");

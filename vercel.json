@@ -3,6 +3,18 @@
     {
       "path": "/api/cron/sync-connections",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/affise-stats",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/nomi-stats",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/startech-stats",
+      "schedule": "0 4 * * *"
     }
   ]
 }

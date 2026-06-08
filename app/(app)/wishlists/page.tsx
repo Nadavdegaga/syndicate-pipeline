@@ -16,6 +16,7 @@ import {
 import { listSavedViews } from "@/lib/actions/saved-views";
 import { DEFAULT_VIEWS } from "@/lib/saved-views/defaults";
 import type { WishlistRow } from "@/lib/supabase/types";
+import { getServerBrand } from "@/lib/utils/server-brand";
 
 const PAGE_SIZE = 50;
 
@@ -32,12 +33,17 @@ export default async function WishlistsPage({
   const to = from + PAGE_SIZE - 1;
   const filter = decodeFilter(searchParams.f);
 
+  const brand = getServerBrand();
   const supabase = createClient();
   let query = supabase
     .from("publisher_wishlists")
     .select("*", { count: "exact" })
     .order("requested_at", { ascending: false, nullsFirst: false })
     .range(from, to);
+
+  if (brand !== "all") {
+    query = query.or(`brand_context.eq.${brand},brand_context.is.null`);
+  }
 
   if (q) {
     const esc = q.replace(/[%,]/g, "");

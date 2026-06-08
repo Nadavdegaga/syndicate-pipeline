@@ -47,6 +47,8 @@ const PLATFORM_DOCS: Record<PlatformKind, { url: string; defaultBase: string; ne
   },
   tune: { url: "https://developers.tune.com/api/", defaultBase: "" },
   hasoffers: { url: "https://developers.tune.com/api/", defaultBase: "" },
+  nomi: { url: "https://affise.atlassian.net/wiki/spaces/Affise/pages/2785706/3.0+API", defaultBase: "", needsSubdomain: true },
+  startech: { url: "https://affise.atlassian.net/wiki/spaces/Affise/pages/2785706/3.0+API", defaultBase: "", needsSubdomain: true },
   custom: { url: "", defaultBase: "" },
 };
 

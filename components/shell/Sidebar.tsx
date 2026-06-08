@@ -21,46 +21,57 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useBrand } from "@/hooks/useBrand";
+import { BrandSwitcher } from "./BrandSwitcher";
+import { BRAND_COLORS } from "@/lib/utils/brand";
+import type { Brand } from "@/types";
 
-type NavItem = { href: string; label: string; icon: LucideIcon };
+type NavItem  = { href: string; label: string; icon: LucideIcon };
 type NavGroup = { label: string; items: NavItem[] };
 
-const GROUPS: NavGroup[] = [
-  {
-    label: "Overview",
-    items: [
-      { href: "/insights", label: "Insights", icon: BarChart3 },
-      { href: "/ask", label: "Ask", icon: MessageCircle },
-      { href: "/today", label: "Today", icon: Target },
-    ],
-  },
-  {
-    label: "Data",
-    items: [
-      { href: "/contacts", label: "Contacts", icon: Users },
-      { href: "/networks", label: "Networks", icon: Radio },
-      { href: "/offers", label: "Offers", icon: Briefcase },
-      { href: "/wishlists", label: "Wishlists", icon: Handshake },
-      { href: "/demand", label: "Demand", icon: TrendingUp },
-    ],
-  },
-  {
-    label: "Reporting",
-    items: [
-      { href: "/reporting/affise", label: "Affise", icon: LineChart },
-      { href: "/reporting/bi", label: "Advanced BI", icon: Sparkles },
-    ],
-  },
-  {
-    label: "Tools",
-    items: [
-      { href: "/matchmaker", label: "MatchMaker", icon: Search },
-      { href: "/external-offers", label: "External Offers", icon: Globe },
-      { href: "/import", label: "Import", icon: Upload },
-      { href: "/settings", label: "Settings", icon: Settings },
-    ],
-  },
-];
+// Static groups — never change regardless of brand
+const OVERVIEW_GROUP: NavGroup = {
+  label: "Overview",
+  items: [
+    { href: "/insights", label: "Insights",       icon: BarChart3      },
+    { href: "/ask",      label: "Ask",             icon: MessageCircle  },
+    { href: "/today",    label: "Today",           icon: Target         },
+  ],
+};
+
+const DATA_GROUP: NavGroup = {
+  label: "Data",
+  items: [
+    { href: "/contacts",  label: "Contacts",  icon: Users      },
+    { href: "/networks",  label: "Networks",  icon: Radio      },
+    { href: "/offers",    label: "Offers",    icon: Briefcase  },
+    { href: "/wishlists", label: "Wishlists", icon: Handshake  },
+    { href: "/demand",    label: "Demand",    icon: TrendingUp },
+  ],
+};
+
+const TOOLS_GROUP: NavGroup = {
+  label: "Tools",
+  items: [
+    { href: "/matchmaker",      label: "MatchMaker",      icon: Search   },
+    { href: "/external-offers", label: "External Offers", icon: Globe    },
+    { href: "/import",          label: "Import",          icon: Upload   },
+    { href: "/settings",        label: "Settings",        icon: Settings },
+  ],
+};
+
+function getReportingItems(brand: Brand): NavItem[] {
+  const luminarix: NavItem = { href: "/reporting/affise",   label: "Luminarix",    icon: LineChart };
+  const nomi:      NavItem = { href: "/reporting/nomi",     label: "Nomi",         icon: LineChart };
+  const st:        NavItem = { href: "/reporting/startech", label: "StarTech",     icon: LineChart };
+  const bi:        NavItem = { href: "/reporting/bi",       label: "Advanced BI",  icon: Sparkles  };
+  switch (brand) {
+    case "nomi":      return [nomi, bi];
+    case "startech":  return [st, bi];
+    case "luminarix": return [luminarix, bi];
+    default:          return [luminarix, nomi, st, bi];
+  }
+}
 
 function initialsFromEmail(email: string | null): string {
   if (!email) return "?";
@@ -70,12 +81,10 @@ function initialsFromEmail(email: string | null): string {
   return local.slice(0, 2).toUpperCase();
 }
 
-// Build a slug-safe data-tour key from the nav href.
 function tourKeyFor(href: string): string {
   return "nav-" + href.replace(/^\//, "").replace(/\//g, "-");
 }
 
-// Active when pathname matches the nav href OR is a sub-route of it.
 function isActive(pathname: string, href: string): boolean {
   if (pathname === href) return true;
   return pathname.startsWith(href + "/");
@@ -83,10 +92,24 @@ function isActive(pathname: string, href: string): boolean {
 
 export function Sidebar({ userEmail }: { userEmail: string | null }) {
   const pathname = usePathname();
+  const { brand } = useBrand();
+  const colors = BRAND_COLORS[brand];
   const initials = initialsFromEmail(userEmail);
 
+  const reportingGroup: NavGroup = {
+    label: "Reporting",
+    items: getReportingItems(brand),
+  };
+  const groups = [OVERVIEW_GROUP, DATA_GROUP, reportingGroup, TOOLS_GROUP];
+
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-slate-200 md:bg-white">
+    <aside
+      className={cn(
+        "hidden md:flex md:w-64 md:flex-col md:border-r md:border-slate-200 md:bg-white md:border-l-4 transition-colors duration-300",
+        colors.sidebarBorder,
+      )}
+    >
+      {/* Logo */}
       <div className="px-5 py-6">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-slate-800 to-slate-950 text-white shadow-sm">
@@ -103,8 +126,14 @@ export function Sidebar({ userEmail }: { userEmail: string | null }) {
         </div>
       </div>
 
+      {/* Brand Switcher */}
+      <div className="pb-4">
+        <BrandSwitcher />
+      </div>
+
+      {/* Nav */}
       <nav className="flex-1 space-y-6 overflow-y-auto px-3">
-        {GROUPS.map((group) => (
+        {groups.map((group) => (
           <div key={group.label} className="space-y-1">
             <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               {group.label}
@@ -140,6 +169,7 @@ export function Sidebar({ userEmail }: { userEmail: string | null }) {
         ))}
       </nav>
 
+      {/* User footer */}
       <div className="border-t border-slate-100 p-3">
         <div className="flex items-center gap-3 rounded-lg px-2 py-2">
           <Avatar className="h-8 w-8">

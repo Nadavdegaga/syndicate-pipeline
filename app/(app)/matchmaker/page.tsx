@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { MatchMakerClient } from "@/components/matchmaker/MatchMakerClient";
 import { listPublishers } from "@/lib/actions/matchmaker";
+import { getServerBrand } from "@/lib/utils/server-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -13,14 +14,21 @@ export default async function MatchMakerPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const brand = getServerBrand();
   const supabase = createClient();
   // Hydrate the offer list once on the server (cheap, ~231 rows)
-  const { data: offers } = await supabase
+  let offersQuery = supabase
     .from("offers")
     .select("id, name, network_name, vertical")
     .in("status", ["active", "needs_traffic", "direct"])
     .order("created_at", { ascending: false })
     .limit(500);
+
+  if (brand !== "all") {
+    offersQuery = offersQuery.or(`brand_context.eq.${brand},brand_context.is.null`);
+  }
+
+  const { data: offers } = await offersQuery;
 
   const publishers = await listPublishers();
 
